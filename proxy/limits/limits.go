@@ -22,7 +22,7 @@ import (
 	"fmt"
 	"syscall"
 
-	"github.com/GoogleCloudPlatform/cloudsql-proxy/logging"
+	"github.com/jason-liew/cloudsql-proxy/logging"
 )
 
 var (

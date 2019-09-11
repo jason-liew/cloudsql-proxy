@@ -28,10 +28,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/GoogleCloudPlatform/cloudsql-proxy/logging"
-	"github.com/GoogleCloudPlatform/cloudsql-proxy/proxy/fuse"
-	"github.com/GoogleCloudPlatform/cloudsql-proxy/proxy/proxy"
-	"github.com/GoogleCloudPlatform/cloudsql-proxy/proxy/util"
+	"github.com/jason-liew/cloudsql-proxy/logging"
+	"github.com/jason-liew/cloudsql-proxy/proxy/fuse"
+	"github.com/jason-liew/cloudsql-proxy/proxy/proxy"
+	"github.com/jason-liew/cloudsql-proxy/proxy/util"
 	sqladmin "google.golang.org/api/sqladmin/v1beta4"
 )
 

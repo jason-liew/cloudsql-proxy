@@ -38,7 +38,6 @@ func readOptionalSSLRequestAndHandshakeResponse(ctx context.Context, data []byte
 	var resp handshakeResponse41
 	var pos int
 
-	println("test")
 	if len(data) < 2 {
 		//	logutil.Logger(ctx).Error("got malformed handshake response", zap.ByteString("packetData", data))
 		fmt.Printf("got malformed handshake response %v", data)

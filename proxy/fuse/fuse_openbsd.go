@@ -20,7 +20,7 @@ import (
 	"errors"
 	"io"
 
-	"github.com/GoogleCloudPlatform/cloudsql-proxy/proxy/proxy"
+	"github.com/jason-liew/cloudsql-proxy/proxy/proxy"
 )
 
 func Supported() bool {

@@ -24,7 +24,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/GoogleCloudPlatform/cloudsql-proxy/logging"
+	"github.com/jason-liew/cloudsql-proxy/logging"
 )
 
 const (
@@ -142,7 +142,7 @@ func (c *Client) handleConn(conn Conn) {
 	}
 
 	c.Conns.Add(conn.Instance, conn.Conn)
-	copyThenClose(server, conn.Conn, conn.Instance, "local connection on "+conn.Conn.LocalAddr().String())
+	copyThenClose(server, conn.Conn, conn.Instance, "local connection on "+conn.Conn.LocalAddr().String(), conn.Conn.RemoteAddr().String())
 
 	if err := c.Conns.Remove(conn.Instance, conn.Conn); err != nil {
 		logging.Errorf("%s", err)
@@ -201,7 +201,7 @@ func (c *Client) refreshCfg(instance string) (addr string, cfg *tls.Config, err 
 		Certificates: []tls.Certificate{mycert},
 		RootCAs:      certs,
 		// We need to set InsecureSkipVerify to true due to
-		// https://github.com/GoogleCloudPlatform/cloudsql-proxy/issues/194
+		// https://github.com/jason-liew/cloudsql-proxy/issues/194
 		// https://tip.golang.org/doc/go1.11#crypto/x509
 		//
 		// Since we have a secure channel to the Cloud SQL API which we use to retrieve the

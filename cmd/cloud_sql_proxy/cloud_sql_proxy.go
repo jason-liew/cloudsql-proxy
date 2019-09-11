@@ -34,12 +34,12 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/GoogleCloudPlatform/cloudsql-proxy/logging"
-	"github.com/GoogleCloudPlatform/cloudsql-proxy/proxy/certs"
-	"github.com/GoogleCloudPlatform/cloudsql-proxy/proxy/fuse"
-	"github.com/GoogleCloudPlatform/cloudsql-proxy/proxy/limits"
-	"github.com/GoogleCloudPlatform/cloudsql-proxy/proxy/proxy"
-	"github.com/GoogleCloudPlatform/cloudsql-proxy/proxy/util"
+	"github.com/jason-liew/cloudsql-proxy/logging"
+	"github.com/jason-liew/cloudsql-proxy/proxy/certs"
+	"github.com/jason-liew/cloudsql-proxy/proxy/fuse"
+	"github.com/jason-liew/cloudsql-proxy/proxy/limits"
+	"github.com/jason-liew/cloudsql-proxy/proxy/proxy"
+	"github.com/jason-liew/cloudsql-proxy/proxy/util"
 
 	"cloud.google.com/go/compute/metadata"
 	"golang.org/x/net/context"

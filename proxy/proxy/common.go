@@ -23,7 +23,7 @@ import (
 	"net"
 	"sync"
 
-	"github.com/GoogleCloudPlatform/cloudsql-proxy/logging"
+	"github.com/jason-liew/cloudsql-proxy/logging"
 )
 
 // SQLScope is the Google Cloud Platform scope required for executing API
@@ -73,7 +73,7 @@ func myCopy(dst io.Writer, src io.Reader) (readErr bool, err error) {
 	}
 }
 
-func myCopyLocal(dst io.Writer, src io.Reader) (readErr bool, err error) {
+func myCopyLocal(dst io.Writer, src io.Reader, remoteDesc, localDesc, userDesc string) (readErr bool, err error) {
 	buf := make([]byte, 4096)
 	hasHandshaked := false
 	var user string
@@ -85,7 +85,7 @@ func myCopyLocal(dst io.Writer, src io.Reader) (readErr bool, err error) {
 			n, user = readHandshake(buf, src)
 			println("--hand user end---  " + user)
 			if user == "" {
-				return true, errors.New("handshake error")
+				return true, errors.New("handshake empty user error")
 			}
 			hasHandshaked = true
 		} else {
@@ -93,9 +93,11 @@ func myCopyLocal(dst io.Writer, src io.Reader) (readErr bool, err error) {
 		}
 
 		if skipPassword {
-			logging.Verbosef(" %v => %q", user, buf[:n])
+			logging.Verbosef(" %v %s -> %s => %q", user, userDesc, remoteDesc, buf[:n])
 		}
-		skipPassword = true
+		if hasHandshaked {
+			skipPassword = true
+		}
 		if n > 0 {
 			if _, werr := dst.Write(buf[:n]); werr != nil {
 				if err == nil {
@@ -113,6 +115,10 @@ func myCopyLocal(dst io.Writer, src io.Reader) (readErr bool, err error) {
 
 func readHandshake(b []byte, d io.Reader) (x1 int, user string) {
 	x, _ := d.Read(b)
+	if x < 5 {
+		logging.Verbosef("handshare packet too small")
+		return x, ""
+	}
 	resp, err := parshHandshakeInfo(b[:x])
 	if err != nil {
 		logging.Verbosef("handshake error")
@@ -131,11 +137,11 @@ func copyError(readDesc, writeDesc string, readErr bool, err error) {
 	logging.Errorf("%v had error: %v", desc, err)
 }
 
-func copyThenClose(remote, local io.ReadWriteCloser, remoteDesc, localDesc string) {
+func copyThenClose(remote, local io.ReadWriteCloser, remoteDesc, localDesc, userDesc string) {
 	firstErr := make(chan error, 1)
 
 	go func() {
-		readErr, err := myCopyLocal(remote, local)
+		readErr, err := myCopyLocal(remote, local, remoteDesc, localDesc, userDesc)
 		select {
 		case firstErr <- err:
 			if readErr && err == io.EOF {
