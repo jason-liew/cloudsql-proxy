@@ -73,6 +73,54 @@ func myCopy(dst io.Writer, src io.Reader) (readErr bool, err error) {
 	}
 }
 
+func myCopyLocal(dst io.Writer, src io.Reader) (readErr bool, err error) {
+	buf := make([]byte, 4096)
+	hasHandshaked := false
+	var user string
+	var n int
+	var skipPassword bool
+	for {
+		if !hasHandshaked {
+			println("--hand user before---" + user)
+			n, user = readHandshake(buf, src)
+			println("--hand user end---  " + user)
+			if user == "" {
+				return true, errors.New("handshake error")
+			}
+			hasHandshaked = true
+		} else {
+			n, err = src.Read(buf)
+		}
+
+		if skipPassword {
+			logging.Verbosef(" %v => %q", user, buf[:n])
+		}
+		skipPassword = true
+		if n > 0 {
+			if _, werr := dst.Write(buf[:n]); werr != nil {
+				if err == nil {
+					return false, werr
+				}
+				// Read and write error; just report read error (it happened first).
+				return true, err
+			}
+		}
+		if err != nil {
+			return true, err
+		}
+	}
+}
+
+func readHandshake(b []byte, d io.Reader) (x1 int, user string) {
+	x, _ := d.Read(b)
+	resp, err := parshHandshakeInfo(b[:x])
+	if err != nil {
+		logging.Verbosef("handshake error")
+		return x, ""
+	}
+	return x, resp.User
+}
+
 func copyError(readDesc, writeDesc string, readErr bool, err error) {
 	var desc string
 	if readErr {
@@ -87,7 +135,7 @@ func copyThenClose(remote, local io.ReadWriteCloser, remoteDesc, localDesc strin
 	firstErr := make(chan error, 1)
 
 	go func() {
-		readErr, err := myCopy(remote, local)
+		readErr, err := myCopyLocal(remote, local)
 		select {
 		case firstErr <- err:
 			if readErr && err == io.EOF {
